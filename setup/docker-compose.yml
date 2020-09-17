@@ -1,0 +1,49 @@
+version: "3.7"
+
+networks:
+  database:
+    external:
+      name: cassandra_net
+
+services:
+  cassandra-seed:
+    image: cassandra:latest
+    container_name: cassandra-seed
+    ports:
+      - "9042:9042"
+    volumes:
+      - "./docker/volumes/cassandra_data_seed:/var/lib/cassandra"
+    environment:
+      - "CASSANDRA_SEEDS=cassandra-seed"
+      - "CASSANDRA_CLUSTER_NAME=Cassandra Cluster"
+      - "CASSANDRA_DC=se1"
+      - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+    restart: always
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 50
+
+  cassandra-node:
+    image: cassandra:latest
+    container_name: cassandra-node
+    volumes:
+      - "./docker/volumes/cassandra_data_node:/var/lib/cassandra"
+    environment:
+      - "CASSANDRA_SEEDS=cassandra-seed"
+      - "CASSANDRA_CLUSTER_NAME=Cassandra Cluster"
+      - "CASSANDRA_DC=se1"
+      - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+    depends_on:
+      - cassandra-seed
+    restart: always
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 50
