@@ -1,5 +1,6 @@
 __pycache__/
 project/logs/*
+project/temp/*
 config.ini
 Pipfile.lock
 cassandra_data_node/
