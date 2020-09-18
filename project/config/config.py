@@ -1,10 +1,13 @@
 import os
 import configparser
+from helper import Helper
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+helper = Helper.getHelper()
+
 parser = configparser.ConfigParser()
-parser.read_file(open(os.path.join(ROOT_DIR, './config.ini')))
+parser.read_file(open(helper.join_path(ROOT_DIR, './config.ini')))
 
 config = {
   "ROOT_DIR": ROOT_DIR,
@@ -19,10 +22,11 @@ config = {
   },
 
   "DATA": {
-    "DATA_EVENT" : os.path.join(ROOT_DIR, f"./{parser.get('DATA', 'DATA_EVENT')}")
+    "DATA_EVENT" : helper.join_path(ROOT_DIR, f"./{parser.get('DATA', 'DATA_EVENT')}"),
+    "TEMP_DIR"   : helper.join_path(ROOT_DIR, f"./{parser.get('DATA', 'TEMP_DIR')}"),
   },
 
   "LOG": {
-    "LOG_DIR" : os.path.join(ROOT_DIR, f"./{parser.get('LOG','LOG_DIR')}")
+    "LOG_DIR" : helper.join_path(ROOT_DIR, f"./{parser.get('LOG','LOG_DIR')}")
   },
 }

@@ -1,8 +1,3 @@
-# import os.path
-# import sys
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 from config import config
