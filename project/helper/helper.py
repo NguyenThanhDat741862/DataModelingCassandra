@@ -1,4 +1,5 @@
 import os
+import re
 
 class Helper:
 
@@ -29,3 +30,6 @@ class Helper:
 
     for file in files:
       os.remove(file)
+
+  def get_str_between(self, str, str1, str2):
+    return re.findall(r'{}(.*?){}'.format(str1, str2), str)

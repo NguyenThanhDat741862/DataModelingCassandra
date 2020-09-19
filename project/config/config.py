@@ -26,6 +26,10 @@ config = {
     "TEMP_DIR"   : helper.join_path(ROOT_DIR, f"./{parser.get('DATA', 'TEMP_DIR')}"),
   },
 
+  "RESULT": {
+    "RESULT_DIR" : helper.join_path(ROOT_DIR, f"./{parser.get('RESULT', 'RESULT_DIR')}"),
+  },
+
   "LOG": {
     "LOG_DIR" : helper.join_path(ROOT_DIR, f"./{parser.get('LOG','LOG_DIR')}")
   },

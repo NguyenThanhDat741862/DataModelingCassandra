@@ -27,17 +27,17 @@ class DB:
       DB()
     return DB.__instance
 
-  def __init__(self, keyspace=None):
+  def __init__(self):
     if DB.__instance:
       raise Exception("This class is a singleton!")
     else:
       DB.__instance = self
 
+    self._keyspace = None
+
     try:
       self._cluster  = Cluster(contact_points, port=CLUSTER_PORT, auth_provider=auth_provider)
       logger.info(f"Setup cluster {CLUSTER_NAME}")
-
-      self._keyspace = keyspace
 
     except Exception as e:
       logger.error(e)
@@ -45,9 +45,7 @@ class DB:
   def __connect__(self):
     try:
       self._session = self._cluster.connect()
-      if self._keyspace:
-        self._session.set_keyspace(self._keyspace)
-      logger.info(f"Open session to '{CLUSTER_NAME}' with keyspace '{self._keyspace}'")
+      logger.info(f"Open session to '{CLUSTER_NAME}'")
     except Exception as e:
       logger.error(e)
 
@@ -59,6 +57,8 @@ class DB:
       logger.error(e)
 
   def shutdown(self):
+    self.__disconnect__()
+    
     try:
       self._cluster.shutdown()
       logger.info(f"Shutdown connect to cluster {CLUSTER_NAME}")
@@ -69,35 +69,39 @@ class DB:
     cql = "CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 }" % (keyspace)
 
     try:
+      self.__connect__()
       self.execute(cql)
-      self._keyspace = keyspace
       logger.info(f"Create keyspace {keyspace}")
+
+      self.set_keyspace(keyspace)
       
     except Exception as e:
       logger.error(e)
 
   def set_keyspace(self, keyspace):
+    self._session.set_keyspace(keyspace)
     self._keyspace = keyspace
+     
+    logger.info(f"Using keyspace '{keyspace}'")
 
   def fetch(self, cql):
-    self.__connect__()
+    rows = None
 
     try:
       rows = self._session.execute(cql)
-      logger.info(f"Executing: {cql}")
+      logger.info(f"Execute: '{cql}'")
     except Exception as e:
       logger.error(e)
       
-    self.__disconnect__()
     return rows 
 
-  def execute(self, cql):
-    self.__connect__()
-    
+  def execute(self, cql, para=None):
     try:
-      self._session.execute(cql)
-      logger.info(f"Executing: {cql}")
+      if para:
+        self._session.execute(cql, para)
+      else:
+        self._session.execute(cql)
+
+      logger.info(f"Execute: '{cql}'")
     except Exception as e:
       logger.error(e)
-    
-    self.__disconnect__()
